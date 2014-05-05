@@ -260,6 +260,7 @@ class PDFManipulation {
     global $base_path;
     global $user;
     module_load_include('inc', 'fedora_repository', 'api/fedora_item');
+    module_load_include('inc', 'islandora_content_model_forms', 'ObjectLinker');
     $objectHelper = new ObjectHelper();
     $item = new Fedora_Item($this->pid);
     if (key_exists('TN', $item->datastreams)) {
@@ -269,6 +270,29 @@ class PDFManipulation {
       $tn_url = $base_path . drupal_get_path('module', 'fedora_repository') . '/images/Crystal_Clear_app_download_manager.png';
     }
 
+    // START OF CODE THAT PRODUCES DEPENDENCY ON OBJECT LINKER
+    // Search for PDF links
+    module_load_include('inc', 'islandora_content_model_forms', 'ObjectLinker');
+    $linkSubjectHeader = 'Click on subject terms to see PDFs on the same topic';
+    
+    $linkSubjectSparqlQuery = 'SELECT ?title ?object WHERE { ?object <http://purl.org/dc/elements/1.1/title> ?title; <fedora-model:state> <fedora-model:Active>; <fedora-model:hasModel> <info:fedora/fba:vocabpref_CModel>; <fedora-rels-ext:isMemberOfCollection> <info:fedora/fba:vocabpref_collection>; <http://fba.org.uk/schemas/fba/fba_rdf/1.0.0/isKeywordedWith> <info:fedora/' . $this->pid . '> } ORDER BY ?title LIMIT 30';
+    $linkSubjectFormattedHtml = get_link_list($linkSubjectHeader, $linkSubjectSparqlQuery);
+
+    if (strlen($linkSubjectFormattedHtml) > 0) {
+      $customLinkFormattedHtml .= '<div style="clear:both">' . $linkSubjectFormattedHtml . '</div>';
+    }
+
+    $linkGeoHeader = 'Click on terms to see PDFs relating to the same geographic term';
+    
+    $linkGeoSparqlQuery = 'SELECT ?title ?object WHERE { ?object <http://purl.org/dc/elements/1.1/title> ?title; <fedora-model:state> <fedora-model:Active>; <fedora-model:hasModel> <info:fedora/fba:geopref_CModel>; <fedora-rels-ext:isMemberOfCollection> <info:fedora/fba:geopref_collection>; <http://fba.org.uk/schemas/fba/fba_rdf/1.0.0/isGeographicKeywordedWith> <info:fedora/' . $this->pid . '> } ORDER BY ?title LIMIT 30';
+
+    $linkGeoFormattedHtml = get_link_list($linkGeoHeader, $linkGeoSparqlQuery);
+
+    if (strlen($linkGeoFormattedHtml) > 0) {
+      $customLinkFormattedHtml .= '<div style="clear:both">' . $linkGeoFormattedHtml . '</div>';
+    }
+    // END OF CODE THAT PRODUCES DEPENDENCY ON OBJECT LINKER
+
     $dl_link = l('<div  style="float:left; padding: 10px"><img src="' . $tn_url . '"><br />View Document</div>', 'fedora/repository/' . $this->pid . '/OBJ', array('html' => TRUE));
 
     $tabset = array();
@@ -276,11 +300,8 @@ class PDFManipulation {
     $tabset['first_tab'] = array(
       '#type' => 'tabpage',
       '#title' => t('PDF'),
-      '#content' => $dl_link,
+      '#content' => $dl_link . $customLinkFormattedHtml,
     );
-
-
-
 
     $tabset['second_tab'] = array(
       '#type' => 'tabpage',
@@ -294,4 +315,3 @@ class PDFManipulation {
   }
 
 }
-

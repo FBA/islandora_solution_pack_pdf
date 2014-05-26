@@ -273,7 +273,7 @@ class PDFManipulation {
     // START OF CODE THAT PRODUCES DEPENDENCY ON OBJECT LINKER
     // Search for PDF links
     module_load_include('inc', 'islandora_content_model_forms', 'ObjectLinker');
-    $linkSubjectHeader = 'Click on subject terms to see PDFs on the same topic';
+    $linkSubjectHeader = 'Click on the subject terms to see other items linked to the same topic';
     
     $linkSubjectSparqlQuery = 'SELECT ?title ?object WHERE { ?object <http://purl.org/dc/elements/1.1/title> ?title; <fedora-model:state> <fedora-model:Active>; <fedora-model:hasModel> <info:fedora/fba:vocabpref_CModel>; <fedora-rels-ext:isMemberOfCollection> <info:fedora/fba:vocabpref_collection>; <http://fba.org.uk/schemas/fba/fba_rdf/1.0.0/isKeywordedWith> <info:fedora/' . $this->pid . '> } ORDER BY ?title LIMIT 30';
     $linkSubjectFormattedHtml = get_link_list($linkSubjectHeader, $linkSubjectSparqlQuery);
@@ -282,7 +282,7 @@ class PDFManipulation {
       $customLinkFormattedHtml .= '<div style="clear:both">' . $linkSubjectFormattedHtml . '</div>';
     }
 
-    $linkGeoHeader = 'Click on terms to see PDFs relating to the same geographic term';
+    $linkGeoHeader = 'Click on the geographic terms to see other items linked to the same term';
     
     $linkGeoSparqlQuery = 'SELECT ?title ?object WHERE { ?object <http://purl.org/dc/elements/1.1/title> ?title; <fedora-model:state> <fedora-model:Active>; <fedora-model:hasModel> <info:fedora/fba:geopref_CModel>; <fedora-rels-ext:isMemberOfCollection> <info:fedora/fba:geopref_collection>; <http://fba.org.uk/schemas/fba/fba_rdf/1.0.0/isGeographicKeywordedWith> <info:fedora/' . $this->pid . '> } ORDER BY ?title LIMIT 30';
 
